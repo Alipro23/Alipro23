@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>GLOBAL CLIMATE</title>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="climate.css">
+
+    <!-- THREE JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <!-- ORBIT CONTROLS -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+    <!-- GSAP (for smooth zoom animation) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+    <!-- YOUR JS FILE (must be LAST) -->
+    <script src="climate.js" defer></script>
+</head>
+
+<body>
+
+    <div class="scanlines"></div>
+
+    <header>
+        <div class="logo">Climate Website</div>
+        <div class="status">● LIVE DATA</div>
+    </header>
+
+    <div class="layout">
+
+        <!-- LEFT PANEL -->
+        <div class="left-panel panel">
+            <h2>LOCATION MONITOR</h2>
+
+            <input id="cityInput" placeholder="Enter City">
+            <button id="scanBtn">INITIATE SCAN</button>
+
+            <div class="metric">
+                <div class="label">TEMPERATURE</div>
+                <div id="temperature" class="value">-- °C</div>
+            </div>
+
+            <div class="metric">
+                <div class="label">GLOBAL WARMING PROGRESS</div>
+                <div id="warming" class="value">-- °C</div>
+            </div>
+
+
+            <div id="lastUpdate" class="timestamp"></div>
+        </div>
+
+        <!-- GLOBE -->
+        <div id="globeContainer"></div>
+
+        <!-- RIGHT PANEL -->
+        <div class="right-panel panel">
+            <h2>HISTORY :</h2>
+            <div id="feed"></div>
+        </div>
+
+    </div>
+
+</body>
+
+</html>
