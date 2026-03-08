@@ -45,7 +45,64 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const globe = new THREE.Mesh(globeGeometry, globeMaterial);
   scene.add(globe);
+// =========================
+// LATITUDE / LONGITUDE GRID
+// =========================
+const gridGroup = new THREE.Group();
 
+const gridMaterial = new THREE.LineBasicMaterial({
+  color: 0x44aaff,
+  transparent: true,
+  opacity: 0.25
+});
+
+// Latitude lines
+for (let lat = -80; lat <= 80; lat += 20) {
+
+  const points = [];
+
+  for (let lon = -180; lon <= 180; lon += 5) {
+
+    const phi = (90 - lat) * (Math.PI / 180);
+    const theta = (lon + 180) * (Math.PI / 180);
+
+    const x = -(radius * Math.sin(phi) * Math.cos(theta));
+    const y = radius * Math.cos(phi);
+    const z = radius * Math.sin(phi) * Math.sin(theta);
+
+    points.push(new THREE.Vector3(x, y, z));
+  }
+
+  const geometry = new THREE.BufferGeometry().setFromPoints(points);
+  const line = new THREE.Line(geometry, gridMaterial);
+
+  gridGroup.add(line);
+}
+
+// Longitude lines
+for (let lon = -180; lon < 180; lon += 20) {
+
+  const points = [];
+
+  for (let lat = -90; lat <= 90; lat += 5) {
+
+    const phi = (90 - lat) * (Math.PI / 180);
+    const theta = (lon + 180) * (Math.PI / 180);
+
+    const x = -(radius * Math.sin(phi) * Math.cos(theta));
+    const y = radius * Math.cos(phi);
+    const z = radius * Math.sin(phi) * Math.sin(theta);
+
+    points.push(new THREE.Vector3(x, y, z));
+  }
+
+  const geometry = new THREE.BufferGeometry().setFromPoints(points);
+  const line = new THREE.Line(geometry, gridMaterial);
+
+  gridGroup.add(line);
+}
+
+scene.add(gridGroup);
   // =========================
   // STARS (COLORFUL + ROUND)
   // =========================
@@ -172,35 +229,55 @@ document.addEventListener("DOMContentLoaded", function () {
   const API_KEY = "0c80052eedfed3154685e0d29bba101a";
   let interval;
 
-  async function fetchData(city) {
+async function fetchData(city) {
 
-    try {
+  try {
 
-      const res = await fetch(
-        `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`
-      );
+    const res = await fetch(
+      `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`
+    );
 
-      const data = await res.json();
-      if (data.cod !== 200) return alert(data.message);
+    const data = await res.json();
+    if (data.cod !== 200) return alert(data.message);
 
-      const temp = data.main.temp;
+    const temp = data.main.temp;
 
-      document.getElementById("temperature").innerText = temp + " °C";
+    document.getElementById("temperature").innerText = temp + " °C";
 
-      const globalWarming = (1.1 + Math.random() * 0.5).toFixed(2);
-      document.getElementById("warming").innerText = globalWarming + " °C";
+    // GET COORDINATES AFTER DATA EXISTS
+    const lat = data.coord.lat;
+    const lon = data.coord.lon;
 
-      document.getElementById("lastUpdate").innerText =
-        "Last Transmission: " + new Date().toLocaleTimeString();
+    const latEl = document.getElementById("latitude");
+    const lonEl = document.getElementById("longitude");
 
-      focusOnLocation(data.coord.lat, data.coord.lon);
+    if (latEl) latEl.innerText = lat.toFixed(2) + "°";
+    if (lonEl) lonEl.innerText = lon.toFixed(2) + "°";
 
-      addFeed(city, temp);
+    const currentGlobalIncrease = 1.2;
+    const parisLimit = 1.5;
 
-    } catch (err) {
-      console.error(err);
-    }
+    const warmingPercent = ((currentGlobalIncrease / parisLimit) * 100).toFixed(1);
+document.getElementById("warming").innerText = warmingPercent + " %";
+
+const bar = document.getElementById("warmingFill");
+if (bar) {
+  bar.style.width = warmingPercent + "%";
+}
+
+    document.getElementById("warming").innerText = warmingPercent + " %";
+
+    document.getElementById("lastUpdate").innerText =
+      "Last Transmission: " + new Date().toLocaleTimeString();
+
+    focusOnLocation(lat, lon);
+
+    addFeed(city, temp);
+
+  } catch (err) {
+    console.error(err);
   }
+}
 
   // =========================
   // HISTORY FEED (FIXED)
@@ -237,5 +314,38 @@ document.addEventListener("DOMContentLoaded", function () {
       clearInterval(interval);
       interval = setInterval(() => fetchData(city), 5000); // 5 seconds
     });
+
+
+// =========================
+// DRAGGABLE COORDINATES PANEL
+// =========================
+
+const coordsPanel = document.getElementById("coordsPanel");
+
+let isDragging = false;
+let offsetX, offsetY;
+
+coordsPanel.addEventListener("mousedown", (e) => {
+
+  isDragging = true;
+
+  offsetX = e.clientX - coordsPanel.offsetLeft;
+  offsetY = e.clientY - coordsPanel.offsetTop;
+
+  coordsPanel.style.position = "absolute";
+});
+
+document.addEventListener("mousemove", (e) => {
+
+  if (!isDragging) return;
+
+  coordsPanel.style.left = (e.clientX - offsetX) + "px";
+  coordsPanel.style.top = (e.clientY - offsetY) + "px";
+
+});
+
+document.addEventListener("mouseup", () => {
+  isDragging = false;
+});
 
 });

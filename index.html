@@ -45,10 +45,28 @@
             </div>
 
             <div class="metric">
-                <div class="label">GLOBAL WARMING PROGRESS</div>
-                <div id="warming" class="value">-- °C</div>
+                <div class="label">GLOBAL WARMING PERCENTAGE</div>
+                <div id="warming" class="value">-- %</div>
+                                <div class="warming-bar-container">
+    <div class="warming-bar">
+        <div id="warmingFill"></div>
+    </div>
+</div>
             </div>
+<!-- COORDINATES PANEL (SEPARATE FROM METRICS) -->
+<div id="coordsPanel" class="coords-panel panel">
+    <h2>COORDINATES</h2>
 
+    <div class="coord-box">
+        <div class="coord-label">LATITUDE</div>
+        <div id="latitude" class="coord-value">--</div>
+    </div>
+
+    <div class="coord-box">
+        <div class="coord-label">LONGITUDE</div>
+        <div id="longitude" class="coord-value">--</div>
+    </div>
+</div>
 
             <div id="lastUpdate" class="timestamp"></div>
         </div>

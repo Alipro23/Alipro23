@@ -183,3 +183,77 @@ button:hover {
     border-bottom: 1px solid #eef2f8;
     color: #333;
 }
+
+/* =======================
+   COORDINATES PANEL
+======================= */
+
+.coords-panel {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 240px;
+    background: rgba(255,255,255,0.95);
+    border: 1px solid #e6ecf5;
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+}
+
+/* =======================
+   RESIZABLE COORD PANEL
+======================= */
+
+#coordsPanel {
+    cursor: move;
+    user-select: none;
+
+    resize: both;          /* allows resizing */
+    overflow: auto;
+
+    min-width: 160px;
+    min-height: 100px;
+
+    width: 240px;          /* default width */
+    height: 120px;         /* default height */
+}
+
+.coord-box {
+    margin-top: 10px;
+}
+
+.coord-label {
+    font-size: 11px;
+    color: #6c7a90;
+}
+
+.coord-value {
+    font-size: 18px;
+    font-weight: 600;
+    margin-top: 4px;
+}
+
+/* =======================
+   GLOBAL WARMING BAR
+======================= */
+
+.warming-bar-container {
+    margin-top: 12px;
+}
+
+.warming-bar {
+    width: 100%;
+    height: 10px;
+    background: #e3eaf5;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+#warmingFill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg,#00c6ff,#0077ff);
+    transition: width 0.6s ease;
+}
