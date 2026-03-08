@@ -11,7 +11,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const redMarkerCountries = [
     "Israel",
     "Iran",
-    "United States",
     "Iraq",
     "Syria",
     "Lebanon",
@@ -20,7 +19,8 @@ document.addEventListener("DOMContentLoaded", function () {
     "United Arab Emirates",
     "UAE",
     "Kuwait",
-    "Qatar"
+    "Qatar",
+    "Palestine"
   ];
 
   // =========================
@@ -28,7 +28,6 @@ document.addEventListener("DOMContentLoaded", function () {
   // =========================
   const countryMajorCities = {
     "Israel": "Tel Aviv",
-    "United States": "New York",
     "Iran": "Tehran",
     "Iraq": "Baghdad",
     "Syria": "Damascus",
