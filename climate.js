@@ -6,28 +6,11 @@ document.addEventListener("DOMContentLoaded", function () {
   const fixedHeight = window.innerHeight - 70;
 
   // =========================
-  // HIGH RISK COUNTRIES
-  // =========================
-  const redMarkerCountries = [
-    "Israel",
-    "Iran",
-    "Iraq",
-    "Syria",
-    "Lebanon",
-    "Yemen",
-    "Saudi Arabia",
-    "United Arab Emirates",
-    "UAE",
-    "Kuwait",
-    "Qatar",
-    "Palestine"
-  ];
-
-  // =========================
   // COUNTRY → MAJOR CITY MAP
   // =========================
   const countryMajorCities = {
     "Israel": "Tel Aviv",
+    "United States": "New York",
     "Iran": "Tehran",
     "Iraq": "Baghdad",
     "Syria": "Damascus",
@@ -205,7 +188,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // =========================
   // WEATHER SYSTEM
   // =========================
-  const API_KEY = "0c80052eedfed3154685e0d29bba101a";
+  const API_KEY = "YOUR_WEATHER_API_KEY HERE";
   let interval;
 
   async function fetchData(input) {
@@ -222,7 +205,6 @@ document.addEventListener("DOMContentLoaded", function () {
       const temp = data.main.temp;
       const lat = data.coord.lat;
       const lon = data.coord.lon;
-      const country = data.sys ? data.sys.country : "";
 
       // Update stats
       const latEl = document.getElementById("latitude");
@@ -244,11 +226,8 @@ document.addEventListener("DOMContentLoaded", function () {
       if (bar) bar.style.width = warmingPercent + "%";
       if (lastUpdateEl) lastUpdateEl.innerText = "Last Transmission: " + new Date().toLocaleTimeString();
 
-      // Marker color
-      let markerColor = 0x00ffff;
-      if (redMarkerCountries.includes(input) || redMarkerCountries.includes(country)) markerColor = 0xff0000;
-
-      focusOnLocation(lat, lon, markerColor);
+      // Always cyan marker
+      focusOnLocation(lat, lon);
 
       // Update feed
       addFeed(input, temp);
