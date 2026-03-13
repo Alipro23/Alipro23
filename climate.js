@@ -153,7 +153,15 @@ document.addEventListener("DOMContentLoaded", function () {
   controls.enablePan = false;
   controls.minDistance = 7;
   controls.maxDistance = 20;
+// =========================
+// MOBILE TOUCH CONTROLS
+// =========================
 
+controls.enableZoom = true;
+controls.enableRotate = true;
+controls.rotateSpeed = 0.8;
+controls.zoomSpeed = 0.6;
+controls.touchDampingFactor = 0.2;
   // =========================
   // ANIMATION LOOP
   // =========================
@@ -305,5 +313,55 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   document.addEventListener("mouseup", () => { isDragging = false; });
+
+// =========================
+// MOBILE OPTIMIZATION
+// =========================
+
+// Reduce GPU load on mobile devices
+if (/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+
+  // reduce stars for mobile
+  const mobileStarLimit = 1500;
+  if (starGeometry.attributes.position.count > mobileStarLimit) {
+
+    const newPositions = positions.slice(0, mobileStarLimit * 3);
+    const newColors = colors.slice(0, mobileStarLimit * 3);
+
+    starGeometry.setAttribute(
+      "position",
+      new THREE.Float32BufferAttribute(newPositions, 3)
+    );
+
+    starGeometry.setAttribute(
+      "color",
+      new THREE.Float32BufferAttribute(newColors, 3)
+    );
+  }
+
+  // slightly reduce globe detail for mobile
+  globe.geometry.dispose();
+  globe.geometry = new THREE.SphereGeometry(radius, 64, 64);
+
+}
+
+// =========================
+// MOBILE RESIZE SUPPORT
+// =========================
+
+window.addEventListener("resize", () => {
+
+  const newHeight = window.innerHeight - 70;
+
+  camera.aspect = container.clientWidth / newHeight;
+  camera.updateProjectionMatrix();
+
+  renderer.setSize(container.clientWidth, newHeight);
+
+});
+
+
 
 });
