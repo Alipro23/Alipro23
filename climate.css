@@ -323,15 +323,34 @@ height:65vh !important;
 
 }
 
+/* MOBILE FIX - FORCE SINGLE COLUMN */
+@media (max-width: 900px){
+
+.layout{
+display:grid !important;
+grid-template-columns: 1fr !important;
+grid-template-rows: auto auto auto !important;
+height:auto !important;
+}
+
+.left-panel{
+grid-row:1;
+}
+
+#globeContainer{
+grid-row:2;
+width:100% !important;
+height:60vh !important;
+}
+
+.right-panel{
+grid-row:3;
+}
+
 #globeContainer canvas{
 width:100% !important;
 height:100% !important;
 display:block;
 }
 
-#coordsPanel{
-left:50%;
-transform:translateX(-50%);
-bottom:20px;
-top:auto;
 }
