@@ -305,3 +305,48 @@ min-height:90px;
 }
 
 }
+
+/* =========================
+SAFE MOBILE OPTIMIZATION
+(does NOT change layout engine)
+========================= */
+
+@media (max-width:900px){
+
+/* allow scrolling on phones */
+body{
+overflow:auto;
+}
+
+/* make panels flexible without changing grid */
+.panel{
+padding:20px;
+}
+
+/* shrink side columns slightly */
+.layout{
+grid-template-columns:260px 1fr 260px;
+}
+
+/* prevent globe overflow */
+#globeContainer{
+height:70vh;
+}
+
+/* fix feed height on smaller screens */
+#feed{
+height:auto;
+max-height:300px;
+}
+
+/* smaller coordinate panel */
+.coords-panel{
+width:200px;
+}
+
+/* ensure canvas interaction works */
+#globeContainer canvas{
+touch-action:none;
+}
+
+}
