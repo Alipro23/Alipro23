@@ -6,6 +6,11 @@ document.addEventListener("DOMContentLoaded", function () {
   const fixedHeight = window.innerHeight - 70;
 
   // =========================
+  // MOBILE DETECTION
+  // =========================
+  const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+  // =========================
   // HIGH RISK COUNTRIES
   // =========================
   const redMarkerCountries = [
@@ -57,8 +62,15 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   renderer.setSize(container.clientWidth, fixedHeight);
-  renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setClearColor(0x000000, 1);
+
+  // MOBILE PERFORMANCE
+  if (isMobile) {
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+  } else {
+    renderer.setPixelRatio(window.devicePixelRatio);
+  }
+
   container.appendChild(renderer.domElement);
   camera.position.set(0, 0, 12);
 
@@ -66,10 +78,16 @@ document.addEventListener("DOMContentLoaded", function () {
   // GLOBE
   // =========================
   const radius = 5;
-  const globeGeometry = new THREE.SphereGeometry(radius, 128, 128);
+  const globeGeometry = new THREE.SphereGeometry(
+    radius,
+    isMobile ? 64 : 128,
+    isMobile ? 64 : 128
+  );
+
   const globeTexture = new THREE.TextureLoader().load(
     "https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg"
   );
+
   const globeMaterial = new THREE.MeshPhongMaterial({ map: globeTexture });
   const globe = new THREE.Mesh(globeGeometry, globeMaterial);
   scene.add(globe);
@@ -83,19 +101,6 @@ document.addEventListener("DOMContentLoaded", function () {
     transparent: true,
     opacity: 0.25
   });
-
-  for (let lat = -80; lat <= 80; lat += 20) {
-    const points = [];
-    for (let lon = -180; lon <= 180; lon += 5) {
-      const phi = (90 - lat) * (Math.PI / 180);
-      const theta = (lon + 180) * (Math.PI / 180);
-      const x = -(radius * Math.sin(phi) * Math.cos(theta));
-      const y = radius * Math.cos(phi);
-      const z = radius * Math.sin(phi) * Math.sin(theta);
-      points.push(new THREE.Vector3(x, y, z));
-    }
-    gridGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(points), gridMaterial));
-  }
 
   for (let lon = -180; lon < 180; lon += 20) {
     const points = [];
@@ -115,7 +120,8 @@ document.addEventListener("DOMContentLoaded", function () {
   // STARS
   // =========================
   const starGeometry = new THREE.BufferGeometry();
-  const starCount = 4000;
+  const starCount = isMobile ? 1500 : 4000;
+
   const positions = [];
   const colors = [];
 
@@ -136,7 +142,12 @@ document.addEventListener("DOMContentLoaded", function () {
   starGeometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
   starGeometry.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
 
-  const starMaterial = new THREE.PointsMaterial({ size: 0.8, vertexColors: true, sizeAttenuation: true });
+  const starMaterial = new THREE.PointsMaterial({
+    size: isMobile ? 0.6 : 0.8,
+    vertexColors: true,
+    sizeAttenuation: true
+  });
+
   scene.add(new THREE.Points(starGeometry, starMaterial));
 
   // =========================
@@ -153,15 +164,14 @@ document.addEventListener("DOMContentLoaded", function () {
   controls.enablePan = false;
   controls.minDistance = 7;
   controls.maxDistance = 20;
-// =========================
-// MOBILE TOUCH CONTROLS
-// =========================
 
-controls.enableZoom = true;
-controls.enableRotate = true;
-controls.rotateSpeed = 0.8;
-controls.zoomSpeed = 0.6;
-controls.touchDampingFactor = 0.2;
+  // MOBILE TOUCH TUNING
+  controls.enableZoom = true;
+  controls.enableRotate = true;
+  controls.rotateSpeed = isMobile ? 0.7 : 0.8;
+  controls.zoomSpeed = isMobile ? 0.5 : 0.6;
+  controls.touchDampingFactor = 0.2;
+
   // =========================
   // ANIMATION LOOP
   // =========================
@@ -232,38 +242,31 @@ controls.touchDampingFactor = 0.2;
       const lon = data.coord.lon;
       const country = data.sys ? data.sys.country : "";
 
-      // Update stats
-      const latEl = document.getElementById("latitude");
-      const lonEl = document.getElementById("longitude");
-      const tempEl = document.getElementById("temperature");
-      const warmingEl = document.getElementById("warming");
-      const bar = document.getElementById("warmingFill");
-      const lastUpdateEl = document.getElementById("lastUpdate");
-
-      if (tempEl) tempEl.innerText = temp + " °C";
-      if (latEl) latEl.innerText = lat.toFixed(2) + "°";
-      if (lonEl) lonEl.innerText = lon.toFixed(2) + "°";
+      document.getElementById("temperature").innerText = temp + " °C";
+      document.getElementById("latitude").innerText = lat.toFixed(2) + "°";
+      document.getElementById("longitude").innerText = lon.toFixed(2) + "°";
 
       const currentGlobalIncrease = 1.2;
       const parisLimit = 1.5;
       const warmingPercent = ((currentGlobalIncrease / parisLimit) * 100).toFixed(1);
 
-      if (warmingEl) warmingEl.innerText = warmingPercent + " %";
-      if (bar) bar.style.width = warmingPercent + "%";
-      if (lastUpdateEl) lastUpdateEl.innerText = "Last Transmission: " + new Date().toLocaleTimeString();
+      document.getElementById("warming").innerText = warmingPercent + " %";
+      document.getElementById("warmingFill").style.width = warmingPercent + "%";
 
-      // Marker color
+      document.getElementById("lastUpdate").innerText =
+        "Last Transmission: " + new Date().toLocaleTimeString();
+
       let markerColor = 0x00ffff;
-      if (redMarkerCountries.includes(input) || redMarkerCountries.includes(country)) markerColor = 0xff0000;
+      if (redMarkerCountries.includes(input) || redMarkerCountries.includes(country))
+        markerColor = 0xff0000;
 
       focusOnLocation(lat, lon, markerColor);
 
-      // Update feed
       addFeed(input, temp);
 
     } catch (err) {
       console.error(err);
-      alert("Error fetching weather data. Check city/country spelling.");
+      alert("Error fetching weather data.");
     }
   }
 
@@ -314,54 +317,18 @@ controls.touchDampingFactor = 0.2;
 
   document.addEventListener("mouseup", () => { isDragging = false; });
 
-// =========================
-// MOBILE OPTIMIZATION
-// =========================
+  // =========================
+  // RESIZE SUPPORT
+  // =========================
+  window.addEventListener("resize", () => {
 
-// Reduce GPU load on mobile devices
-if (/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+    const newHeight = window.innerHeight - 70;
 
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+    camera.aspect = container.clientWidth / newHeight;
+    camera.updateProjectionMatrix();
 
-  // reduce stars for mobile
-  const mobileStarLimit = 1500;
-  if (starGeometry.attributes.position.count > mobileStarLimit) {
+    renderer.setSize(container.clientWidth, newHeight);
 
-    const newPositions = positions.slice(0, mobileStarLimit * 3);
-    const newColors = colors.slice(0, mobileStarLimit * 3);
-
-    starGeometry.setAttribute(
-      "position",
-      new THREE.Float32BufferAttribute(newPositions, 3)
-    );
-
-    starGeometry.setAttribute(
-      "color",
-      new THREE.Float32BufferAttribute(newColors, 3)
-    );
-  }
-
-  // slightly reduce globe detail for mobile
-  globe.geometry.dispose();
-  globe.geometry = new THREE.SphereGeometry(radius, 64, 64);
-
-}
-
-// =========================
-// MOBILE RESIZE SUPPORT
-// =========================
-
-window.addEventListener("resize", () => {
-
-  const newHeight = window.innerHeight - 70;
-
-  camera.aspect = container.clientWidth / newHeight;
-  camera.updateProjectionMatrix();
-
-  renderer.setSize(container.clientWidth, newHeight);
-
-});
-
-
+  });
 
 });
