@@ -5,12 +5,14 @@ document.addEventListener("DOMContentLoaded", function () {
 const container = document.getElementById("globeContainer");
 const fixedHeight = window.innerHeight - 70;
 
+// =========================
+// MOBILE DETECTION
+// =========================
 const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
 // =========================
 // HIGH RISK COUNTRIES
 // =========================
-
 const redMarkerCountries = [
 "Israel","Iran","Iraq","Syria","Lebanon","Yemen",
 "Saudi Arabia","United Arab Emirates","UAE",
@@ -20,7 +22,6 @@ const redMarkerCountries = [
 // =========================
 // COUNTRY → CITY MAP
 // =========================
-
 const countryMajorCities = {
 "Israel":"Tel Aviv",
 "Iran":"Tehran",
@@ -38,7 +39,6 @@ const countryMajorCities = {
 // =========================
 // THREE SCENE
 // =========================
-
 const scene = new THREE.Scene();
 
 const camera = new THREE.PerspectiveCamera(
@@ -54,23 +54,15 @@ alpha:true
 });
 
 renderer.setSize(container.clientWidth,fixedHeight);
-
-renderer.setPixelRatio(
-isMobile
-? Math.min(window.devicePixelRatio,1.5)
-: window.devicePixelRatio
-);
-
+renderer.setPixelRatio(isMobile ? Math.min(window.devicePixelRatio,1.5) : window.devicePixelRatio);
 renderer.setClearColor(0x000000,1);
 
 container.appendChild(renderer.domElement);
-
 camera.position.set(0,0,12);
 
 // =========================
 // GLOBE
 // =========================
-
 const radius = 5;
 
 const globeGeometry = new THREE.SphereGeometry(
@@ -86,13 +78,11 @@ const globeTexture = new THREE.TextureLoader().load(
 const globeMaterial = new THREE.MeshPhongMaterial({ map: globeTexture });
 
 const globe = new THREE.Mesh(globeGeometry, globeMaterial);
-
 scene.add(globe);
 
 // =========================
 // STARS
 // =========================
-
 const starGeometry = new THREE.BufferGeometry();
 const starCount = isMobile ? 1500 : 4000;
 
@@ -138,18 +128,15 @@ scene.add(new THREE.Points(starGeometry,starMaterial));
 // =========================
 // LIGHTING
 // =========================
-
 scene.add(new THREE.AmbientLight(0xffffff,1.4));
 
 const dirLight = new THREE.DirectionalLight(0xffffff,0.5);
 dirLight.position.set(5,3,5);
-
 scene.add(dirLight);
 
 // =========================
 // CONTROLS
 // =========================
-
 const controls = new THREE.OrbitControls(camera,renderer.domElement);
 
 controls.enableDamping = true;
@@ -161,26 +148,24 @@ controls.maxDistance = 20;
 controls.rotateSpeed = isMobile ? 0.7 : 0.8;
 controls.zoomSpeed = isMobile ? 0.5 : 0.6;
 
+// MOBILE TOUCH IMPROVEMENT
+if(isMobile){
+controls.touchDampingFactor = 0.2;
+}
+
 // =========================
 // ANIMATION
 // =========================
-
 function animate(){
-
 requestAnimationFrame(animate);
-
 controls.update();
-
 renderer.render(scene,camera);
-
 }
-
 animate();
 
 // =========================
 // MARKER SYSTEM
 // =========================
-
 let currentMarker = null;
 
 function addMarker(x,y,z,color=0x00ffff){
@@ -193,7 +178,6 @@ const markerMaterial = new THREE.MeshBasicMaterial({color});
 const marker = new THREE.Mesh(markerGeometry,markerMaterial);
 
 marker.position.set(x,y,z);
-
 scene.add(marker);
 
 currentMarker = marker;
@@ -203,7 +187,6 @@ currentMarker = marker;
 // =========================
 // CAMERA FOCUS
 // =========================
-
 function focusOnLocation(lat,lon,color=0x00ffff){
 
 const phi = (90-lat)*(Math.PI/180);
@@ -228,7 +211,6 @@ addMarker(x,y,z,color);
 // =========================
 // WEATHER SYSTEM
 // =========================
-
 const API_KEY = "0c80052eedfed3154685e0d29bba101a";
 
 let interval;
@@ -288,7 +270,6 @@ alert("Error fetching weather data.");
 // =========================
 // HISTORY FEED
 // =========================
-
 function addFeed(input,temp){
 
 const feed = document.getElementById("feed");
@@ -310,7 +291,6 @@ feed.removeChild(feed.lastChild);
 // =========================
 // SCAN BUTTON
 // =========================
-
 document.getElementById("scanBtn").addEventListener("click",function(){
 
 const input = document.getElementById("cityInput").value.trim();
@@ -326,50 +306,38 @@ interval = setInterval(()=>fetchData(input),5000);
 });
 
 // =========================
-// DRAGGABLE COORDS PANEL
+// DRAGGABLE PANEL
 // =========================
-
 const coordsPanel = document.getElementById("coordsPanel");
 
 let isDragging = false;
 let offsetX,offsetY;
 
 coordsPanel.addEventListener("mousedown",(e)=>{
-
 isDragging = true;
-
 offsetX = e.clientX - coordsPanel.offsetLeft;
 offsetY = e.clientY - coordsPanel.offsetTop;
-
 coordsPanel.style.position="absolute";
-
 });
 
 document.addEventListener("mousemove",(e)=>{
-
 if(!isDragging) return;
-
 coordsPanel.style.left = (e.clientX-offsetX)+"px";
 coordsPanel.style.top = (e.clientY-offsetY)+"px";
-
 });
 
 document.addEventListener("mouseup",()=>{
-
 isDragging=false;
-
 });
 
 // =========================
-// RESIZE SUPPORT
+// RESIZE
 // =========================
-
 window.addEventListener("resize",()=>{
 
 const newHeight = window.innerHeight-70;
 
 camera.aspect = container.clientWidth/newHeight;
-
 camera.updateProjectionMatrix();
 
 renderer.setSize(container.clientWidth,newHeight);
